@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIDNIGHT DRIFT - Open World Driving</title>
+<meta name="description" content="MIDNIGHT DRIFT - An open world 3D night driving game with drifting, nitro boost, and an explorable city.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- LOADING SCREEN -->
+<div id="loader">
+  <div class="loader-content">
+    <h1 class="loader-title">MIDNIGHT<span>DRIFT</span></h1>
+    <p class="loader-sub">OPEN WORLD DRIVING</p>
+    <p class="loader-tagline">Night City • Drift • Explore</p>
+    <div class="loader-bar"><div class="loader-fill" id="loadFill"></div></div>
+    <p class="loader-hint" id="loadText">Initializing...</p>
+  </div>
+</div>
+
+<!-- SPEED LINES OVERLAY -->
+<canvas id="speedLines"></canvas>
+
+<!-- HUD -->
+<div id="hud" style="display:none;">
+  <!-- Speed -->
+  <div id="speedo">
+    <div id="speed-val">0</div>
+    <div id="speed-unit">KM/H</div>
+  </div>
+  <!-- RPM -->
+  <div id="rpm-box">
+    <div id="rpm-label">RPM</div>
+    <div id="rpm-bar"><div id="rpm-fill"></div></div>
+    <div id="rpm-val">800</div>
+  </div>
+  <!-- Drift Score -->
+  <div id="drift-hud">
+    <div id="drift-label">DRIFT</div>
+    <div id="drift-score">0</div>
+    <div id="drift-multi"></div>
+  </div>
+  <!-- Minimap -->
+  <div id="minimap-box">
+    <canvas id="minimap" width="170" height="170"></canvas>
+  </div>
+  <!-- Gear -->
+  <div id="gear-display">N</div>
+  <!-- Nitro bar -->
+  <div id="nitro-box">
+    <div id="nitro-label">NOS</div>
+    <div id="nitro-bar"><div id="nitro-fill"></div></div>
+  </div>
+  <!-- Stats -->
+  <div id="stats-box">
+    <div class="stat-row"><span class="stat-label">DRIFT PTS</span><span class="stat-val" id="total-drift">0</span></div>
+    <div class="stat-row"><span class="stat-label">DISTANCE</span><span class="stat-val" id="distance">0.0km</span></div>
+    <div class="stat-row"><span class="stat-label">TOP SPEED</span><span class="stat-val" id="top-speed">0</span></div>
+  </div>
+  <!-- Controls hint -->
+  <div id="controls-hint">H — Controls &nbsp;|&nbsp; C — Camera &nbsp;|&nbsp; T — Race Mode &nbsp;|&nbsp; SHIFT — Nitro</div>
+</div>
+
+<!-- Controls Panel -->
+<div id="controls-panel" style="display:none;">
+  <h2>CONTROLS</h2>
+  <div class="ctrl-grid">
+    <div class="ctrl-key">W / ↑</div><div class="ctrl-desc">Accelerate</div>
+    <div class="ctrl-key">S / ↓</div><div class="ctrl-desc">Brake / Reverse</div>
+    <div class="ctrl-key">A / ←</div><div class="ctrl-desc">Steer Left</div>
+    <div class="ctrl-key">D / →</div><div class="ctrl-desc">Steer Right</div>
+    <div class="ctrl-key">SPACE</div><div class="ctrl-desc">Handbrake (Drift)</div>
+    <div class="ctrl-key">SHIFT</div><div class="ctrl-desc">Nitro Boost</div>
+    <div class="ctrl-key">C</div><div class="ctrl-desc">Cycle Camera (4 modes)</div>
+    <div class="ctrl-key">R</div><div class="ctrl-desc">Reset Car</div>
+    <div class="ctrl-key">L</div><div class="ctrl-desc">Toggle Headlights</div>
+    <div class="ctrl-key">T</div><div class="ctrl-desc">Toggle Race Mode</div>
+    <div class="ctrl-key">H</div><div class="ctrl-desc">Toggle This Panel</div>
+  </div>
+  <p class="ctrl-close">Press H to close • Gamepad supported</p>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<!-- Post-processing scripts (Legacy JS versions for simplicity in this setup) -->
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r134/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r134/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r134/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r134/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r134/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r134/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+<script src="input.js"></script>
+<script src="car.js"></script>
+<script src="world.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
