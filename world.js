@@ -11,7 +11,8 @@ class World {
 
   _buildSky(scene) {
     scene.background = new THREE.Color(0x04040a);
-    scene.fog = new THREE.FogExp2(0x04040a, 0.003);
+    // Reduced fog density for visibility
+    scene.fog = new THREE.FogExp2(0x04040a, 0.0008);
     // Dense Stars
     let starGeo = new THREE.BufferGeometry();
     let starVerts = [];
@@ -41,8 +42,9 @@ class World {
       new THREE.PlaneGeometry(CFG.WORLD*3, CFG.WORLD*3),
       groundMat
     );
-    ground.rotation.x = -Math.PI/2;
-    ground.position.y = -0.1;
+      ground.rotation.x = -Math.PI/2;
+      // Place ground at y=0 so car is clearly above it
+      ground.position.y = 0;
     scene.add(ground);
 
     // Boundary walls - VISIBLE

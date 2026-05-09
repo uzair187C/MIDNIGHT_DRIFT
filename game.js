@@ -281,6 +281,17 @@ class Game {
         this.particles=new Particles(this.scene);
         this.rain=new Rain(this.scene);
         this.speedLines=new SpeedLines();
+
+        // Force initial camera behind the car to avoid 180° startup
+        try {
+          const camX = this.car.pos.x - Math.sin(this.car.heading) * CFG.CAM_DIST;
+          const camZ = this.car.pos.z - Math.cos(this.car.heading) * CFG.CAM_DIST;
+          const camY = this.car.pos.y + CFG.CAM_HEIGHT + 2;
+          this.camera.position.set(camX, camY, camZ);
+          this.camSmooth.set(this.car.pos.x + Math.sin(this.car.heading) * 4, this.car.pos.y + 1, this.car.pos.z + Math.cos(this.car.heading) * 4);
+          this.camera.up.set(0,1,0);
+          this.camera.lookAt(this.car.pos);
+        } catch(e) {}
         
         fill.style.width='100%'; loadText.textContent='READY';
         
