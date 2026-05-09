@@ -452,13 +452,21 @@ class Game {
     this.camSmooth.y += (ly - this.camSmooth.y) * dt * smooth;
     this.camSmooth.z += (lz - this.camSmooth.z) * dt * smooth;
     
-    this.camera.up.set(0,1,0);
+    // Enforce camera up vector and clamp rotation
+    this.camera.up.set(0, 1, 0);
     this.camera.lookAt(this.camSmooth);
-    this.camera.up.set(0,1,0);
+    this.camera.up.set(0, 1, 0);
     
-    // Dutch roll on steering
+    // Clamp camera rotation.x to prevent flipping upside down (-80 to 80 degrees)
+    if (this.camera.rotation.order === 'YXZ') {
+      this.camera.rotation.x = Math.max(-Math.PI/2.25, Math.min(Math.PI/2.25, this.camera.rotation.x));
+    }
+    
+    // Dutch roll on steering (reduced to prevent excessive tilt)
     if(this.camMode !== 3) {
-      this.camera.rotation.z = -car.steer * 0.05 * (Math.abs(car.speed)/40);
+      let targetRoll = -car.steer * 0.03 * (Math.abs(car.speed)/40);
+      this.camera.rotation.z += (targetRoll - this.camera.rotation.z) * dt * 5;
+      this.camera.rotation.z = Math.max(-Math.PI/12, Math.min(Math.PI/12, this.camera.rotation.z)); // Clamp to ±15 degrees
     } else {
       this.camera.rotation.z = 0;
     }

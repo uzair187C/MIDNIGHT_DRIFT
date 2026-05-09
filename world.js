@@ -31,27 +31,29 @@ class World {
   }
 
   _buildGround(scene) {
-    // City terrain and park areas
+    // City terrain and park areas - BRIGHTER
     let c = document.createElement('canvas'); c.width=512; c.height=512;
     let ctx = c.getContext('2d');
-    ctx.fillStyle='#081812'; ctx.fillRect(0,0,512,512);
+    ctx.fillStyle='#1a2a1f'; ctx.fillRect(0,0,512,512);
     for(let i=0;i<9000;i++){
-      let g = 20+Math.random()*20;
-      ctx.fillStyle=`rgba(${g},${g+20},${g},0.25)`;
+      let g = 40+Math.random()*30;
+      ctx.fillStyle=`rgba(${g},${g+20},${g},0.4)`;
       ctx.fillRect(Math.random()*512, Math.random()*512, 2, 2);
     }
     let grassTex = new THREE.CanvasTexture(c);
     grassTex.wrapS=grassTex.wrapT=THREE.RepeatWrapping; grassTex.repeat.set(50,50);
     let ground = new THREE.Mesh(new THREE.PlaneGeometry(CFG.WORLD*2,CFG.WORLD*2),
-      new THREE.MeshStandardMaterial({map:grassTex, color:0x0b1a12, roughness:0.9, metalness:0.05}));
+      new THREE.MeshStandardMaterial({map:grassTex, color:0x1a2a1f, roughness:0.85, metalness:0.0}));
     ground.rotation.x=-Math.PI/2;
+    ground.position.y=0.01;
     scene.add(ground);
 
-    // Boundary walls
-    let wallMat = new THREE.MeshStandardMaterial({color:0x11131a, roughness:0.9, metalness:0.1});
+    // Boundary walls - BRIGHT AND VISIBLE
+    let wallMat = new THREE.MeshStandardMaterial({color:0x553333, roughness:0.7, metalness:0.2});
     let wallHeight = CFG.BARRIER_HEIGHT;
     let wallThick = CFG.BARRIER_THICKNESS;
     let edge = CFG.WORLD - wallThick;
+    
     let wallH = new THREE.Mesh(new THREE.BoxGeometry(CFG.WORLD*2 + wallThick*2, wallHeight, wallThick), wallMat);
     wallH.position.set(0, wallHeight/2, -edge);
     scene.add(wallH);
@@ -64,6 +66,22 @@ class World {
     let wallV2 = wallV.clone();
     wallV2.position.set(edge, wallHeight/2, 0);
     scene.add(wallV2);
+    
+    // Boundary glow lights
+    for(let i = -5; i <= 5; i++) {
+      let light1 = new THREE.PointLight(0xff4444, 1.5, 40);
+      light1.position.set(i * 200, 3, -edge);
+      scene.add(light1);
+      let light2 = light1.clone();
+      light2.position.set(i * 200, 3, edge);
+      scene.add(light2);
+      let light3 = light1.clone();
+      light3.position.set(-edge, 3, i * 200);
+      scene.add(light3);
+      let light4 = light1.clone();
+      light4.position.set(edge, 3, i * 200);
+      scene.add(light4);
+    }
 
     // Grid Helper for spatial reference
     let grid = new THREE.GridHelper(CFG.WORLD, 40, 0x00ffd5, 0x112233);
@@ -201,14 +219,31 @@ class World {
         
         let mats = new THREE.MeshStandardMaterial({
           map:tex,
-          roughness:0.2,
-          metalness:0.3,
+          roughness:0.15,
+          metalness:0.4,
           emissiveMap:tex,
-          emissive: new THREE.Color(isDowntown ? 0x226688 : 0x113344),
-          emissiveIntensity: isDowntown ? 0.8 : 0.35
+          emissive: new THREE.Color(isDowntown ? 0x3388aa : 0x224466),
+          emissiveIntensity: isDowntown ? 1.2 : 0.6
         });
         let bld=new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mats);
         bld.position.set(px,h/2,pz); scene.add(bld);
+        
+        // Building outline glow
+        let outlineMat = new THREE.MeshBasicMaterial({
+          color: isDowntown ? 0x00ffff : 0x0088ff,
+          wireframe: false,
+          transparent: true,
+          opacity: 0.15
+        });
+        let outline = new THREE.Mesh(new THREE.BoxGeometry(w+0.3, h+0.3, d+0.3), outlineMat);
+        outline.position.set(px, h/2, pz);
+        scene.add(outline);
+        
+        // Building glow light
+        let buildingLight = new THREE.PointLight(isDowntown ? 0x0088ff : 0x004488, 0.6, 50);
+        buildingLight.position.set(px, h*0.7, pz);
+        scene.add(buildingLight);
+        
         this.buildings.push({x:px,z:pz,w:w,d:d,h:h});
         
         // Roof Spires & Neon
