@@ -229,27 +229,25 @@ class Game {
 
     this.scene=new THREE.Scene();
     
-    // Camera
+    // Camera - FIXED TO LOOK AT CAR SPAWN
     this.camera=new THREE.PerspectiveCamera(70,window.innerWidth/window.innerHeight,0.1,2000);
-    this.camera.position.set(0, 50, -50);
+    this.camera.position.set(0, 8, 15);
+    this.camera.lookAt(0, 1, 0);
     this.camMode=0;
-    this.camSmooth=new THREE.Vector3();
+    this.camSmooth=new THREE.Vector3(0, 1, 0);
     this.screenShake={x:0,y:0,intensity:0};
 
-    // Post-processing
+    // Post-processing - SIMPLIFIED FOR PERFORMANCE
     this.composer = new THREE.EffectComposer(this.renderer);
     const renderPass = new THREE.RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
     
-    const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.0, 0.4, 0.85);
-    bloomPass.threshold = 0.15;
-    bloomPass.strength = 0.6;
-    bloomPass.radius = 0.3;
-    this.composer.addPass(bloomPass);
+    // Bloom disabled for performance
+    // const bloomPass = new THREE.UnrealBloomPass(...);
 
-    // Lighting (Brightened)
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    let mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    // Lighting - REDUCED
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    let mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
     mainLight.position.set(100, 300, 100);
     this.scene.add(mainLight);
     
@@ -452,21 +450,14 @@ class Game {
     this.camSmooth.y += (ly - this.camSmooth.y) * dt * smooth;
     this.camSmooth.z += (lz - this.camSmooth.z) * dt * smooth;
     
-    // Enforce camera up vector and clamp rotation
     this.camera.up.set(0, 1, 0);
     this.camera.lookAt(this.camSmooth);
-    this.camera.up.set(0, 1, 0);
     
-    // Clamp camera rotation.x to prevent flipping upside down (-80 to 80 degrees)
-    if (this.camera.rotation.order === 'YXZ') {
-      this.camera.rotation.x = Math.max(-Math.PI/2.25, Math.min(Math.PI/2.25, this.camera.rotation.x));
-    }
-    
-    // Dutch roll on steering (reduced to prevent excessive tilt)
+    // Dutch roll on steering - REDUCED FOR STABILITY
     if(this.camMode !== 3) {
-      let targetRoll = -car.steer * 0.03 * (Math.abs(car.speed)/40);
-      this.camera.rotation.z += (targetRoll - this.camera.rotation.z) * dt * 5;
-      this.camera.rotation.z = Math.max(-Math.PI/12, Math.min(Math.PI/12, this.camera.rotation.z)); // Clamp to ±15 degrees
+      let targetRoll = -car.steer * 0.02 * (Math.abs(car.speed)/40);
+      this.camera.rotation.z += (targetRoll - this.camera.rotation.z) * dt * 3;
+      this.camera.rotation.z = Math.max(-0.15, Math.min(0.15, this.camera.rotation.z));
     } else {
       this.camera.rotation.z = 0;
     }
