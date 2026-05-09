@@ -83,6 +83,18 @@ class World {
     grid.material.transparent = true;
     grid.material.opacity = 0.15;
     scene.add(grid);
+
+    // Central asphalt plaza (new ground area) - slightly above base ground to avoid z-fighting
+    let asphaltMat = new THREE.MeshStandardMaterial({color:0x0b0b0d, roughness:0.18, metalness:0.02});
+    let asphalt = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), asphaltMat);
+    asphalt.rotation.x = -Math.PI/2; asphalt.position.set(0, 0.03, 0);
+    scene.add(asphalt);
+
+    // Concrete plaza for variety
+    let concreteMat = new THREE.MeshStandardMaterial({color:0x33373a, roughness:0.9, metalness:0.0});
+    let plaza = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), concreteMat);
+    plaza.rotation.x = -Math.PI/2; plaza.position.set(-420, 0.04, 420);
+    scene.add(plaza);
   }
 
   _buildRoads(scene) {
@@ -237,6 +249,32 @@ class World {
     }
 
     // Add special landmarks
+    // Small industrial district in corner for map variety
+    (function buildIndustrial(){
+      let ix = CFG.WORLD/2 - 220, iz = CFG.WORLD/2 - 220;
+      let wareMat = new THREE.MeshStandardMaterial({color:0x2b2b2b, roughness:0.5, metalness:0.6});
+      let doorMat = new THREE.MeshStandardMaterial({color:0x111111, roughness:0.2});
+      for(let i=0;i<6;i++){
+        let w = 60 + Math.random()*40, d = 80 + Math.random()*60, h = 12 + Math.random()*8;
+        let px = ix + (i%3) * (w + 20);
+        let pz = iz + Math.floor(i/3) * (d + 30);
+        let wh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wareMat);
+        wh.position.set(px, h/2 + 0.02, pz); scene.add(wh);
+        // Big garage door
+        let door = new THREE.Mesh(new THREE.BoxGeometry(w*0.6, h*0.5, 1), doorMat);
+        door.position.set(px, (h*0.25)+0.02, pz + d/2 + 0.6); scene.add(door);
+        // Small rooftop vents
+        for(let v=0; v<3; v++){
+          let vent = new THREE.Mesh(new THREE.BoxGeometry(2,1,2), new THREE.MeshStandardMaterial({color:0x444444}));
+          vent.position.set(px - w/4 + v* (w/4), h + 0.8, pz - d/6); scene.add(vent);
+        }
+      }
+      // Crane
+      let craneMat = new THREE.MeshStandardMaterial({color:0xffcc66, metalness:0.9});
+      let base = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 6), craneMat); base.position.set(ix + 80, 3, iz + 80); scene.add(base);
+      let arm = new THREE.Mesh(new THREE.BoxGeometry(1,1,80), craneMat); arm.position.set(ix + 80, 30, iz + 40); scene.add(arm);
+    })();
+
     this._buildLandmarks(scene);
   }
 
