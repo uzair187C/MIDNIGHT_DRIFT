@@ -452,11 +452,15 @@ class Game {
     this.camSmooth.y += (ly - this.camSmooth.y) * dt * smooth;
     this.camSmooth.z += (lz - this.camSmooth.z) * dt * smooth;
     
+    this.camera.up.set(0,1,0);
     this.camera.lookAt(this.camSmooth);
+    this.camera.up.set(0,1,0);
     
     // Dutch roll on steering
     if(this.camMode !== 3) {
       this.camera.rotation.z = -car.steer * 0.05 * (Math.abs(car.speed)/40);
+    } else {
+      this.camera.rotation.z = 0;
     }
   }
 }

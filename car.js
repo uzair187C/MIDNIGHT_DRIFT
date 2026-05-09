@@ -411,6 +411,13 @@ class Car {
     this.pos.x += Math.sin(moveAngle) * this.speed * dt;
     this.pos.z += Math.cos(moveAngle) * this.speed * dt;
 
+    // Map boundary collision
+    let boundary = CFG.MAP_BOUNDARY;
+    if(this.pos.x < -boundary) { this.pos.x = -boundary; this.speed *= 0.3; this.hitWall = true; }
+    if(this.pos.x > boundary) { this.pos.x = boundary; this.speed *= 0.3; this.hitWall = true; }
+    if(this.pos.z < -boundary) { this.pos.z = -boundary; this.speed *= 0.3; this.hitWall = true; }
+    if(this.pos.z > boundary) { this.pos.z = boundary; this.speed *= 0.3; this.hitWall = true; }
+
     // Advanced Suspension & Ramps
     let groundY = 0.4;
     let suspensionForce = 0;

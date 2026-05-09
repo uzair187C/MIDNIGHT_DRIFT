@@ -31,22 +31,40 @@ class World {
   }
 
   _buildGround(scene) {
-    // Wet asphalt look
+    // City terrain and park areas
     let c = document.createElement('canvas'); c.width=512; c.height=512;
     let ctx = c.getContext('2d');
-    ctx.fillStyle='#1a1a1e'; ctx.fillRect(0,0,512,512);
-    for(let i=0;i<8000;i++){
-      let g = 10+Math.random()*15;
-      ctx.fillStyle=`rgba(${g},${g},${g+5},0.3)`;
-      ctx.fillRect(Math.random()*512, Math.random()*512, 1, 1);
+    ctx.fillStyle='#081812'; ctx.fillRect(0,0,512,512);
+    for(let i=0;i<9000;i++){
+      let g = 20+Math.random()*20;
+      ctx.fillStyle=`rgba(${g},${g+20},${g},0.25)`;
+      ctx.fillRect(Math.random()*512, Math.random()*512, 2, 2);
     }
-    let tex = new THREE.CanvasTexture(c);
-    tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(100,100);
+    let grassTex = new THREE.CanvasTexture(c);
+    grassTex.wrapS=grassTex.wrapT=THREE.RepeatWrapping; grassTex.repeat.set(50,50);
     let ground = new THREE.Mesh(new THREE.PlaneGeometry(CFG.WORLD*2,CFG.WORLD*2),
-      new THREE.MeshStandardMaterial({map:tex, color:0x111115, roughness:0.2, metalness:0.1}));
+      new THREE.MeshStandardMaterial({map:grassTex, color:0x0b1a12, roughness:0.9, metalness:0.05}));
     ground.rotation.x=-Math.PI/2;
     scene.add(ground);
-    
+
+    // Boundary walls
+    let wallMat = new THREE.MeshStandardMaterial({color:0x11131a, roughness:0.9, metalness:0.1});
+    let wallHeight = CFG.BARRIER_HEIGHT;
+    let wallThick = CFG.BARRIER_THICKNESS;
+    let edge = CFG.WORLD - wallThick;
+    let wallH = new THREE.Mesh(new THREE.BoxGeometry(CFG.WORLD*2 + wallThick*2, wallHeight, wallThick), wallMat);
+    wallH.position.set(0, wallHeight/2, -edge);
+    scene.add(wallH);
+    let wallH2 = wallH.clone();
+    wallH2.position.set(0, wallHeight/2, edge);
+    scene.add(wallH2);
+    let wallV = new THREE.Mesh(new THREE.BoxGeometry(wallThick, wallHeight, CFG.WORLD*2 + wallThick*2), wallMat);
+    wallV.position.set(-edge, wallHeight/2, 0);
+    scene.add(wallV);
+    let wallV2 = wallV.clone();
+    wallV2.position.set(edge, wallHeight/2, 0);
+    scene.add(wallV2);
+
     // Grid Helper for spatial reference
     let grid = new THREE.GridHelper(CFG.WORLD, 40, 0x00ffd5, 0x112233);
     grid.position.y = 0.05;
@@ -56,10 +74,12 @@ class World {
   }
 
   _buildRoads(scene) {
-    let roadMat = new THREE.MeshStandardMaterial({color:0x121214, roughness:0.2, metalness:0.1});
-    let markMat = new THREE.MeshBasicMaterial({color:0x666666});
-    let yellowMat = new THREE.MeshBasicMaterial({color:0xaa8800});
-    
+    let roadMat = new THREE.MeshStandardMaterial({color:0x101219, roughness:0.18, metalness:0.04});
+    let sidewalkMat = new THREE.MeshStandardMaterial({color:0x23262f, roughness:0.96, metalness:0.03});
+    let curbMat = new THREE.MeshStandardMaterial({color:0x44455a, roughness:0.8, metalness:0.02});
+    let laneMark = new THREE.MeshBasicMaterial({color:0xffffff});
+    let centerMark = new THREE.MeshBasicMaterial({color:0xffd500});
+
     for(let i=-6;i<=6;i++){
       let pos = i*CFG.BLOCK;
       // Grid roads
@@ -67,13 +87,51 @@ class World {
       rx.rotation.x=-Math.PI/2; rx.position.set(0,0.02,pos); scene.add(rx);
       let rz = new THREE.Mesh(new THREE.PlaneGeometry(CFG.ROAD_W, CFG.WORLD), roadMat);
       rz.rotation.x=-Math.PI/2; rz.position.set(pos,0.02,0); scene.add(rz);
-      
-      // Dashed markings
-      for(let m=-CFG.WORLD/2; m<CFG.WORLD/2; m+=10){
-        let d1=new THREE.Mesh(new THREE.PlaneGeometry(4,0.15),markMat);
-        d1.rotation.x=-Math.PI/2; d1.position.set(m,0.03,pos); scene.add(d1);
-        let d2=new THREE.Mesh(new THREE.PlaneGeometry(0.15,4),markMat);
-        d2.rotation.x=-Math.PI/2; d2.position.set(pos,0.03,m); scene.add(d2);
+
+      // Sidewalks
+      let sx1 = new THREE.Mesh(new THREE.PlaneGeometry(CFG.WORLD, CFG.SIDEWALK_W), sidewalkMat);
+      sx1.rotation.x=-Math.PI/2; sx1.position.set(0,0.035,pos + CFG.ROAD_W/2 + CFG.SIDEWALK_W/2);
+      scene.add(sx1);
+      let sx2 = sx1.clone(); sx2.position.set(0,0.035,pos - CFG.ROAD_W/2 - CFG.SIDEWALK_W/2);
+      scene.add(sx2);
+      let sz1 = new THREE.Mesh(new THREE.PlaneGeometry(CFG.SIDEWALK_W, CFG.WORLD), sidewalkMat);
+      sz1.rotation.x=-Math.PI/2; sz1.position.set(pos + CFG.ROAD_W/2 + CFG.SIDEWALK_W/2,0.035,0);
+      scene.add(sz1);
+      let sz2 = sz1.clone(); sz2.position.set(pos - CFG.ROAD_W/2 - CFG.SIDEWALK_W/2,0.035,0);
+      scene.add(sz2);
+
+      // Road edges
+      let edge1 = new THREE.Mesh(new THREE.PlaneGeometry(CFG.WORLD, 0.2), curbMat);
+      edge1.rotation.x=-Math.PI/2; edge1.position.set(0,0.04,pos + CFG.ROAD_W/2);
+      scene.add(edge1);
+      let edge2 = edge1.clone(); edge2.position.set(0,0.04,pos - CFG.ROAD_W/2);
+      scene.add(edge2);
+      let edge3 = new THREE.Mesh(new THREE.PlaneGeometry(0.2, CFG.WORLD), curbMat);
+      edge3.rotation.x=-Math.PI/2; edge3.position.set(pos + CFG.ROAD_W/2,0.04,0);
+      scene.add(edge3);
+      let edge4 = edge3.clone(); edge4.position.set(pos - CFG.ROAD_W/2,0.04,0);
+      scene.add(edge4);
+
+      // Dashed center markings
+      for(let m=-CFG.WORLD/2; m<CFG.WORLD/2; m+=14){
+        let d1=new THREE.Mesh(new THREE.PlaneGeometry(6,0.15), centerMark);
+        d1.rotation.x=-Math.PI/2; d1.position.set(m,0.05,pos); scene.add(d1);
+        let d2=new THREE.Mesh(new THREE.PlaneGeometry(0.15,6), centerMark);
+        d2.rotation.x=-Math.PI/2; d2.position.set(pos,0.05,m); scene.add(d2);
+      }
+
+      // Side lane markings
+      for(let m=-CFG.WORLD/2; m<CFG.WORLD/2; m+=20){
+        let s1=new THREE.Mesh(new THREE.PlaneGeometry(2,0.1), laneMark);
+        s1.rotation.x=-Math.PI/2; s1.position.set(m,0.045,pos - CFG.ROAD_W/2 + 1);
+        scene.add(s1);
+        let s2=s1.clone(); s2.position.set(m,0.045,pos + CFG.ROAD_W/2 - 1);
+        scene.add(s2);
+        let s3=new THREE.Mesh(new THREE.PlaneGeometry(0.1,2), laneMark);
+        s3.rotation.x=-Math.PI/2; s3.position.set(pos - CFG.ROAD_W/2 + 1,0.045,m);
+        scene.add(s3);
+        let s4=s3.clone(); s4.position.set(pos + CFG.ROAD_W/2 - 1,0.045,m);
+        scene.add(s4);
       }
     }
   }
@@ -141,7 +199,15 @@ class World {
         tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
         tex.repeat.set(Math.ceil(w/12),Math.ceil(h/12));
         
-        let bld=new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshStandardMaterial({map:tex, roughness:0.2, metalness:0.5}));
+        let mats = new THREE.MeshStandardMaterial({
+          map:tex,
+          roughness:0.2,
+          metalness:0.3,
+          emissiveMap:tex,
+          emissive: new THREE.Color(isDowntown ? 0x226688 : 0x113344),
+          emissiveIntensity: isDowntown ? 0.8 : 0.35
+        });
+        let bld=new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mats);
         bld.position.set(px,h/2,pz); scene.add(bld);
         this.buildings.push({x:px,z:pz,w:w,d:d,h:h});
         
