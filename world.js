@@ -12,16 +12,17 @@ class World {
   _buildSky(scene) {
     scene.background = new THREE.Color(0x04040a);
     // Reduced fog density for visibility
-    scene.fog = new THREE.FogExp2(0x04040a, 0.0008);
+    scene.fog = new THREE.FogExp2(0x04040a, 0.00025);
     // Dense Stars
     let starGeo = new THREE.BufferGeometry();
     let starVerts = [];
-    for(let i=0;i<4000;i++){
-      let r=400+Math.random()*400, t=Math.random()*Math.PI*2, p=Math.random()*Math.PI;
+    // Fewer, subtler stars placed above horizon to avoid drowning the scene
+    for(let i=0;i<600;i++){
+      let r=800+Math.random()*400, t=Math.random()*Math.PI*2, p=Math.random()*Math.PI/2; // p limited to upper hemisphere
       starVerts.push(Math.cos(t)*Math.sin(p)*r, Math.cos(p)*r, Math.sin(t)*Math.sin(p)*r);
     }
     starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
-    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.6, transparent:true, opacity:0.8})));
+    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.35, transparent:true, opacity:0.35})));
     // Moon
     let moon = new THREE.Mesh(new THREE.SphereGeometry(12,24,24), new THREE.MeshBasicMaterial({color:0xf0f5ff}));
     moon.position.set(-300, 250, -400);

@@ -247,9 +247,12 @@ class Game {
 
     // Lighting - REDUCED
     this.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-    let mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    let mainLight = new THREE.DirectionalLight(0xffffff, 0.7);
     mainLight.position.set(100, 300, 100);
     this.scene.add(mainLight);
+    // Add a hemisphere light to brighten ground and buildings without many point lights
+    let hemi = new THREE.HemisphereLight(0xddddff, 0x222233, 0.45);
+    this.scene.add(hemi);
     
     // Environment Map for Reflections
     this.cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, { format: THREE.RGBAFormat, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter });
