@@ -233,6 +233,7 @@ class Game {
     this.camera=new THREE.PerspectiveCamera(70,window.innerWidth/window.innerHeight,0.1,2000);
     this.camera.position.set(0, 8, 15);
     this.camera.lookAt(0, 1, 0);
+    this.camera.up.set(0, 1, 0); // Ensure camera is upright
     this.camMode=0;
     this.camSmooth=new THREE.Vector3(0, 1, 0);
     this.screenShake={x:0,y:0,intensity:0};
@@ -464,8 +465,13 @@ class Game {
     this.camSmooth.y += (ly - this.camSmooth.y) * dt * smooth;
     this.camSmooth.z += (lz - this.camSmooth.z) * dt * smooth;
     
+    // Force camera upright and prevent flipping
     this.camera.up.set(0, 1, 0);
     this.camera.lookAt(this.camSmooth);
+    
+    // Clamp camera rotation to prevent upside down
+    this.camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.camera.rotation.x));
+    this.camera.rotation.z = Math.max(-0.3, Math.min(0.3, this.camera.rotation.z));
     
     // Dutch roll on steering - REDUCED FOR STABILITY
     if(this.camMode !== 3) {
